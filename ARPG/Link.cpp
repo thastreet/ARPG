@@ -3,46 +3,13 @@
 const bool betterSword = false;
 const int walkDistance = 2;
 const int walkingAnimationThreshold = 3;
-const int attackingAnimationThreshold = 2;
-int x;
-int y;
-int frame = 0;
+
 bool attacking = false;
 
 Animation walkingAnimation = Animation();
 Animation stoppedAnimation = Animation();
 Animation attackingAnimation = Animation();
 Animation swordAnimation = Animation();
-
-Animation* animation;
-AnimationDirection animationDirection;
-
-Direction direction = Direction::DOWN;
-
-int getDirectionIndex()
-{
-	switch (direction)
-	{
-	case Direction::DOWN:
-		return 3;
-	case Direction::UP:
-		return 1;
-	case Direction::LEFT:
-		return 2;
-	case Direction::RIGHT:
-		return 0;
-	}
-}
-
-void setAnimation(Animation* newAnimation, bool resetFrame)
-{
-	animation = newAnimation;
-	animationDirection = animation->directions[getDirectionIndex()];
-	if (resetFrame)
-	{
-		frame = 0;
-	}
-}
 
 void Link::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader)
 {
@@ -53,61 +20,24 @@ void Link::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, Animat
 
 	setAnimation(&stoppedAnimation, true);
 
+	direction = Direction::DOWN;
 	x = animationDirection.offsetX;
 	y = animationDirection.offsetY;
 }
 
-std::vector<SDL_Surface*> Link::getSurfaces()
+vector<SDL_Surface*> Link::getSurfaces()
 {
-	std::vector<SDL_Surface*> vect;
-	vect.push_back(walkingAnimation.surface);
-	vect.push_back(stoppedAnimation.surface);
-	vect.push_back(attackingAnimation.surface);
-	vect.push_back(swordAnimation.surface);
-	return vect;
+	vector<SDL_Surface*> surfaces;
+	surfaces.push_back(walkingAnimation.surface);
+	surfaces.push_back(stoppedAnimation.surface);
+	surfaces.push_back(attackingAnimation.surface);
+	surfaces.push_back(swordAnimation.surface);
+	return surfaces;
 }
 
-void incrementFrame()
-{
-	++frame;
-	if (frame > animationDirection.size - 1)
-	{
-		frame = 0;
-	}
-}
-
-void setDirection(Direction newDirection)
-{
-	direction = newDirection;
-	animationDirection = animation->directions[getDirectionIndex()];
-}
-
-DrawingInfo createDrawingInfo(AnimationDirection animationDirection, Animation* animation)
-{
-	SDL_Rect src = SDL_Rect();
-	src.x = animationDirection.x + animationDirection.width * frame;
-	src.y = animationDirection.y;
-	src.w = animationDirection.width;
-	src.h = animationDirection.height;
-
-	SDL_Rect dst = SDL_Rect();
-	dst.x = x - animationDirection.offsetX;
-	dst.y = y - animationDirection.offsetY;
-	dst.w = animationDirection.width;
-	dst.h = animationDirection.height;
-
-	DrawingInfo drawingInfo = DrawingInfo();
-	drawingInfo.srcRect = src;
-	drawingInfo.dstRect = dst;
-	drawingInfo.surface = animation->surface;
-
-	return drawingInfo;
-}
-
-vector<DrawingInfo> Link::handleKeyState(const Uint8 * keyState, int totalFrame)
+vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame)
 {
 	const bool shouldAnimateWalking = totalFrame % walkingAnimationThreshold == 0;
-	const bool shouldAnimateAttacking = totalFrame % attackingAnimationThreshold == 0;
 
 	if (attacking && frame == animationDirection.size - 1)
 	{
@@ -117,10 +47,7 @@ vector<DrawingInfo> Link::handleKeyState(const Uint8 * keyState, int totalFrame)
 
 	if (attacking)
 	{
-		if (shouldAnimateAttacking)
-		{
-			incrementFrame();
-		}
+		incrementFrame();
 	}
 	else
 	{

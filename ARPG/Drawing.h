@@ -5,6 +5,14 @@
 
 using namespace std;
 
+enum class Direction
+{
+	UP,
+	LEFT,
+	RIGHT,
+	DOWN
+};
+
 struct DrawingInfo
 {
 	SDL_Rect srcRect;
@@ -47,12 +55,19 @@ class Drawable
 public:
 	virtual void init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader) = 0;
 	virtual vector<SDL_Surface*> getSurfaces() = 0;
-};
+	virtual vector<DrawingInfo> tick(const Uint8* keyState, int totalFrame) = 0;
 
-enum class Direction
-{
-	UP,
-	LEFT,
-	RIGHT,
-	DOWN
+protected:
+	DrawingInfo createDrawingInfo(AnimationDirection animationDirection, Animation* animation);
+	int getDirectionIndex();
+	void setAnimation(Animation* newAnimation, bool resetFrame);
+	void incrementFrame();
+	void setDirection(Direction newDirection);
+
+	Animation* animation;
+	AnimationDirection animationDirection;
+	Direction direction;
+	int x;
+	int y;
+	int frame;
 };

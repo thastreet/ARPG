@@ -6,6 +6,9 @@
 #include <string>
 #include <stdio.h>
 #include <vector>
+#include "Enemy.h"
+
+using namespace std;
 
 const int FPS = 60;
 const int frameDelay = 1000 / FPS;
@@ -16,7 +19,7 @@ Link link = Link();
 SurfaceLoader surfaceLoader = SurfaceLoader();
 AnimationLoader animationLoader = AnimationLoader();
 
-void mainLoop(SDL_Window* window, SDL_Surface* windowSurface, SDL_Surface* lightWorld) {
+void mainLoop(SDL_Window* window, SDL_Surface* windowSurface, SDL_Surface* lightWorld, vector<Drawable*> drawables) {
 	bool quit = false;
 
 	SDL_Event e;
@@ -57,10 +60,13 @@ void mainLoop(SDL_Window* window, SDL_Surface* windowSurface, SDL_Surface* light
 			}
 		}
 
-		vector<DrawingInfo> linkDrawingInfos = link.handleKeyState(keyState, totalFrame);
-		for (DrawingInfo drawingInfo : linkDrawingInfos)
+		for (Drawable* drawable : drawables)
 		{
-			SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
+			vector<DrawingInfo> drawingInfos = drawable->tick(keyState, totalFrame);
+			for (DrawingInfo drawingInfo : drawingInfos)
+			{
+				SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
+			}
 		}
 
 		SDL_UpdateWindowSurface(window);
@@ -84,8 +90,11 @@ void Engine::start(int screenWidth, int screenHeight)
 	}
 	else
 	{
-		std::vector<Drawable*> drawables;
+		Enemy enemy = Enemy();
+
+		vector<Drawable*> drawables;
 		drawables.push_back(&link);
+		drawables.push_back(&enemy);
 
 		SDL_Surface* lightWorld = surfaceLoader.loadSurface("light_world.png", windowSurface);
 
@@ -94,7 +103,7 @@ void Engine::start(int screenWidth, int screenHeight)
 			drawable->init(windowSurface, &surfaceLoader, &animationLoader);
 		}
 
-		mainLoop(window, windowSurface, lightWorld);
+		mainLoop(window, windowSurface, lightWorld, drawables);
 
 		for (Drawable* drawable : drawables)
 		{

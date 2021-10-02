@@ -1,7 +1,7 @@
 #pragma once
 #include "Drawing.h"
 
-class Link : public Drawable
+class Enemy : public Drawable
 {
 public:
 	void init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader);
