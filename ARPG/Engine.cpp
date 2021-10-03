@@ -145,6 +145,20 @@ void Engine::start(int screenWidth, int screenHeight)
 	SDL_Quit();
 }
 
+void removeEnemy(Enemy* enemy, int index)
+{
+	enemies.erase(enemies.begin() + index);
+
+	for (int i = drawables.size() - 1; i >= 0; --i)
+	{
+		Drawable* drawable = drawables[i];
+		if (drawable == enemy)
+		{
+			drawables.erase(drawables.begin() + i);
+		}
+	}
+}
+
 void Engine::attack(int x, int y)
 {
 	SDL_Point point = SDL_Point();
@@ -158,15 +172,10 @@ void Engine::attack(int x, int y)
 
 		if (SDL_PointInRect(&point, &hitRect))
 		{
-			enemies.erase(enemies.begin() + i);
-
-			for (int j = drawables.size() - 1; j >= 0; --j)
+			enemy->attack(1);
+			if (enemy->life <= 0)
 			{
-				Drawable* drawable = drawables[j];
-				if (drawable == enemy)
-				{
-					drawables.erase(drawables.begin() + j);
-				}
+				removeEnemy(enemy, i);
 			}
 		}
 	}

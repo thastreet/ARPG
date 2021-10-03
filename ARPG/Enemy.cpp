@@ -45,3 +45,16 @@ SDL_Rect Enemy::getHitRect()
 
 	return rect;
 }
+
+void Enemy::attack(int value)
+{
+	int newLife = life - value;
+	if (newLife < 0)
+	{
+		life = 0;
+	}
+	else
+	{
+		life = newLife;
+	}
+}
