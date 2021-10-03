@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <vector>
 #include "Enemy.h"
+#include "Map.h"
 
 using namespace std;
 
@@ -24,7 +25,7 @@ AnimationLoader animationLoader = AnimationLoader();
 vector<Drawable*> drawables;
 vector<Enemy*> enemies;
 
-void mainLoop(SDL_Window* window, SDL_Surface* windowSurface, SDL_Surface* lightWorld, vector<Drawable*>* drawables) {
+void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface* windowSurface, vector<Drawable*>* drawables, Map* map) {
 	bool quit = false;
 
 	SDL_Event event;
@@ -45,25 +46,16 @@ void mainLoop(SDL_Window* window, SDL_Surface* windowSurface, SDL_Surface* light
 			}
 		}
 
-		const Uint8* keyState = SDL_GetKeyboardState(NULL);
+		Uint32 skyblue = SDL_MapRGB(windowSurface->format, 65, 193, 193);
+		SDL_FillRect(windowSurface, NULL, skyblue);
 
-		SDL_Rect src = SDL_Rect();
-		src.x = 0;
-		src.y = 0;
-		src.w = 8;
-		src.h = 8;
-
-		for (int i = 0; i < 100; ++i) {
-			for (int j = 0; j < 100; ++j) {
-				SDL_Rect dst = SDL_Rect();
-				dst.x = i * 8;
-				dst.y = j * 8;
-				dst.w = 8;
-				dst.h = 8;
-
-				SDL_BlitSurface(lightWorld, &src, windowSurface, &dst);
-			}
+		vector<DrawingInfo> drawingInfos = map->drawingInfos;
+		for (DrawingInfo drawingInfo : drawingInfos)
+		{
+			SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
 		}
+
+		const Uint8* keyState = SDL_GetKeyboardState(NULL);
 
 		for (int i = 0; i < drawables->size(); ++i)
 		{
@@ -116,14 +108,15 @@ void Engine::start(int screenWidth, int screenHeight)
 		drawables.push_back(&enemy);
 		drawables.push_back(&link);
 
-		SDL_Surface* lightWorld = surfaceLoader.loadSurface("light_world.png", windowSurface);
-
 		for (Drawable* drawable : drawables)
 		{
 			drawable->init(windowSurface, &surfaceLoader, &animationLoader);
 		}
 
-		mainLoop(window, windowSurface, lightWorld, &drawables);
+		Map map;
+		map.init("light_world.tiles.png", "map.json", &surfaceLoader, windowSurface);
+
+		mainLoop(screenWidth, screenHeight, window, windowSurface, &drawables, &map);
 
 		for (Drawable* drawable : drawables)
 		{
@@ -134,8 +127,10 @@ void Engine::start(int screenWidth, int screenHeight)
 			}
 		}
 
-		SDL_FreeSurface(lightWorld);
-		lightWorld = NULL;
+		for (DrawingInfo drawingInfo : map.drawingInfos)
+		{
+			SDL_FreeSurface(drawingInfo.surface);
+		}
 	}
 
 	SDL_DestroyWindow(window);
