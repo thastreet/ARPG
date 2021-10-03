@@ -133,6 +133,8 @@ int Drawable::getDirectionIndex()
 		return 2;
 	case Direction::RIGHT:
 		return 0;
+	default:
+		return 0;
 	}
 }
 

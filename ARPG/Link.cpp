@@ -20,7 +20,6 @@ void Link::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, Animat
 
 	setAnimation(&stoppedAnimation, true);
 
-	direction = Direction::DOWN;
 	x = animationDirection.offsetX;
 	y = animationDirection.offsetY;
 }
@@ -48,6 +47,33 @@ vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame)
 	if (attacking)
 	{
 		incrementFrame();
+		if (frame == animationDirection.size / 2)
+		{
+			int swordX = 0;
+			int swordY = 0;
+
+			switch (direction)
+			{
+			case Direction::DOWN:
+				swordX = animationDirection.width / 2;
+				swordY = animationDirection.height + 6;
+				break;
+			case Direction::UP:
+				swordX = animationDirection.width / 2;
+				swordY = 0;
+				break;
+			case Direction::LEFT:
+				swordX = -6;
+				swordY = animationDirection.height - 10;
+				break;
+			case Direction::RIGHT:
+				swordX = animationDirection.width + 6;
+				swordY = animationDirection.height - 10;
+				break;
+			}
+
+			attackAware->attack(x - animationDirection.offsetX + swordX, y - animationDirection.offsetY + swordY);
+		}
 	}
 	else
 	{

@@ -26,6 +26,7 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AttackAware.h" />
     <ClInclude Include="Drawing.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />

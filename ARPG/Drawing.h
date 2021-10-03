@@ -64,10 +64,10 @@ protected:
 	void incrementFrame();
 	void setDirection(Direction newDirection);
 
-	Animation* animation;
+	Animation* animation = NULL;
 	AnimationDirection animationDirection;
-	Direction direction;
-	int x;
-	int y;
-	int frame;
+	Direction direction = Direction::DOWN;
+	int x = 0;
+	int y = 0;
+	int frame = 0;
 };

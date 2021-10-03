@@ -12,25 +12,30 @@ using namespace std;
 
 const int FPS = 60;
 const int frameDelay = 1000 / FPS;
+const bool debug = false;
+
 Uint32 frameStart;
 int frameTime;
 int totalFrame;
-Link link = Link();
+
 SurfaceLoader surfaceLoader = SurfaceLoader();
 AnimationLoader animationLoader = AnimationLoader();
 
-void mainLoop(SDL_Window* window, SDL_Surface* windowSurface, SDL_Surface* lightWorld, vector<Drawable*> drawables) {
+vector<Drawable*> drawables;
+vector<Enemy*> enemies;
+
+void mainLoop(SDL_Window* window, SDL_Surface* windowSurface, SDL_Surface* lightWorld, vector<Drawable*>* drawables) {
 	bool quit = false;
 
-	SDL_Event e;
+	SDL_Event event;
 
 	while (!quit)
 	{
 		frameStart = SDL_GetTicks();
 
-		while (SDL_PollEvent(&e) != 0)
+		while (SDL_PollEvent(&event) != 0)
 		{
-			switch (e.type)
+			switch (event.type)
 			{
 			case SDL_QUIT:
 				quit = true;
@@ -60,12 +65,23 @@ void mainLoop(SDL_Window* window, SDL_Surface* windowSurface, SDL_Surface* light
 			}
 		}
 
-		for (Drawable* drawable : drawables)
+		for (int i = 0; i < drawables->size(); ++i)
 		{
+			Drawable* drawable = drawables->at(i);
 			vector<DrawingInfo> drawingInfos = drawable->tick(keyState, totalFrame);
 			for (DrawingInfo drawingInfo : drawingInfos)
 			{
 				SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
+
+				if (debug)
+				{
+					SDL_Rect position = SDL_Rect();
+					position.x = drawingInfo.dstRect.x;
+					position.y = drawingInfo.dstRect.y;
+					position.w = 2;
+					position.h = 2;
+					SDL_FillRect(windowSurface, &position, SDL_MapRGB(windowSurface->format, 255, 0, 0));
+				}
 			}
 		}
 
@@ -91,10 +107,14 @@ void Engine::start(int screenWidth, int screenHeight)
 	else
 	{
 		Enemy enemy = Enemy();
+		enemies.push_back(&enemy);
 
-		vector<Drawable*> drawables;
-		drawables.push_back(&link);
+		Link link = Link();
+		link.attackAware = this;
+
+		drawables.clear();
 		drawables.push_back(&enemy);
+		drawables.push_back(&link);
 
 		SDL_Surface* lightWorld = surfaceLoader.loadSurface("light_world.png", windowSurface);
 
@@ -103,7 +123,7 @@ void Engine::start(int screenWidth, int screenHeight)
 			drawable->init(windowSurface, &surfaceLoader, &animationLoader);
 		}
 
-		mainLoop(window, windowSurface, lightWorld, drawables);
+		mainLoop(window, windowSurface, lightWorld, &drawables);
 
 		for (Drawable* drawable : drawables)
 		{
@@ -123,4 +143,31 @@ void Engine::start(int screenWidth, int screenHeight)
 
 	IMG_Quit();
 	SDL_Quit();
+}
+
+void Engine::attack(int x, int y)
+{
+	SDL_Point point = SDL_Point();
+	point.x = x;
+	point.y = y;
+
+	for (int i = enemies.size() - 1; i >= 0; --i)
+	{
+		Enemy* enemy = enemies[i];
+		SDL_Rect hitRect = enemy->getHitRect();
+
+		if (SDL_PointInRect(&point, &hitRect))
+		{
+			enemies.erase(enemies.begin() + i);
+
+			for (int j = drawables.size() - 1; j >= 0; --j)
+			{
+				Drawable* drawable = drawables[j];
+				if (drawable == enemy)
+				{
+					drawables.erase(drawables.begin() + j);
+				}
+			}
+		}
+	}
 }

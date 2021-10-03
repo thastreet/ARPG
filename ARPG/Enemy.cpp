@@ -2,11 +2,17 @@
 
 using namespace std;
 
+const int animationThreshold = 20;
 Animation mainAnimation = Animation();
 
 void Enemy::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader)
 {
 	animationLoader->loadAnimation(&mainAnimation, "tentacle.json", "walking", surfaceLoader->loadSurface("tentacle.png", windowSurface));
+
+	setAnimation(&mainAnimation, true);
+
+	x = animationDirection.offsetX + 100;
+	y = animationDirection.offsetY + 50;
 }
 
 vector<SDL_Surface*> Enemy::getSurfaces()
@@ -18,7 +24,24 @@ vector<SDL_Surface*> Enemy::getSurfaces()
 
 vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame)
 {
-	vector<DrawingInfo> drawingInfos;
+	const bool shouldAnimate = totalFrame % animationThreshold == 0;
+	if (shouldAnimate)
+	{
+		incrementFrame();
+	}
 
+	vector<DrawingInfo> drawingInfos;
+	drawingInfos.push_back(createDrawingInfo(animationDirection, &mainAnimation));
 	return drawingInfos;
+}
+
+SDL_Rect Enemy::getHitRect()
+{
+	SDL_Rect rect = SDL_Rect();
+	rect.x = this->x - animationDirection.offsetX;
+	rect.y = this->y - 15;
+	rect.w = animationDirection.width;
+	rect.h = 17;
+
+	return rect;
 }
