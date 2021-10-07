@@ -6,7 +6,7 @@ using namespace nlohmann;
 
 void Map::init(string surfaceName, string fileName, SurfaceLoader* surfaceLoader, SDL_Surface* windowSurface)
 {
-	SDL_Surface* surface = surfaceLoader->loadSurface(surfaceName, windowSurface);
+	surface = surfaceLoader->loadSurface(surfaceName, windowSurface);
 
 	drawingInfos.clear();
 

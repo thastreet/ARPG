@@ -127,10 +127,8 @@ void Engine::start(int screenWidth, int screenHeight)
 			}
 		}
 
-		for (DrawingInfo drawingInfo : map.drawingInfos)
-		{
-			SDL_FreeSurface(drawingInfo.surface);
-		}
+
+		SDL_FreeSurface(map.surface);
 	}
 
 	SDL_DestroyWindow(window);
