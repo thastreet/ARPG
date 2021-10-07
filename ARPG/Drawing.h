@@ -64,7 +64,7 @@ protected:
 	void incrementFrame();
 	void setDirection(Direction newDirection);
 
-	Animation* animation = NULL;
+	Animation* animation = nullptr;
 	AnimationDirection animationDirection;
 	Direction direction = Direction::DOWN;
 	int x = 0;

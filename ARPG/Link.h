@@ -9,6 +9,6 @@ public:
 	vector<SDL_Surface*> getSurfaces();
 	vector<DrawingInfo> tick(const Uint8* keyState, int totalFrame);
 
-	AttackAware* attackAware = NULL;
+	AttackAware* attackAware = nullptr;
 };
 

@@ -47,7 +47,7 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 		}
 
 		Uint32 skyblue = SDL_MapRGB(windowSurface->format, 65, 193, 193);
-		SDL_FillRect(windowSurface, NULL, skyblue);
+		SDL_FillRect(windowSurface, nullptr, skyblue);
 
 		vector<DrawingInfo> drawingInfos = map->drawingInfos;
 		for (DrawingInfo drawingInfo : drawingInfos)
@@ -55,7 +55,7 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 			SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
 		}
 
-		const Uint8* keyState = SDL_GetKeyboardState(NULL);
+		const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
 		for (int i = 0; i < drawables->size(); ++i)
 		{
@@ -92,7 +92,7 @@ void Engine::start(int screenWidth, int screenHeight)
 {
 	SDL_Window* window = SDL_CreateWindow("ARPG", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
 	SDL_Surface* windowSurface = surfaceLoader.getWindowSurface(window);
-	if (windowSurface == NULL)
+	if (windowSurface == nullptr)
 	{
 		printf("Failed to initialize!\n");
 	}
@@ -123,7 +123,7 @@ void Engine::start(int screenWidth, int screenHeight)
 			for (SDL_Surface* surface : drawable->getSurfaces())
 			{
 				SDL_FreeSurface(surface);
-				surface = NULL;
+				surface = nullptr;
 			}
 		}
 
@@ -132,7 +132,7 @@ void Engine::start(int screenWidth, int screenHeight)
 	}
 
 	SDL_DestroyWindow(window);
-	window = NULL;
+	window = nullptr;
 
 	IMG_Quit();
 	SDL_Quit();
