@@ -8,6 +8,6 @@ public:
 	void init(string surfaceName, string fileName, SurfaceLoader* surfaceLoader, SDL_Surface* windowSurface);
 
 	vector<DrawingInfo> drawingInfos;
-	SDL_Surface* surface;
+	SDL_Surface* surface = nullptr;
 };
 

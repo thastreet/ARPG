@@ -57,9 +57,8 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 
 		const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
-		for (int i = 0; i < drawables->size(); ++i)
+		for (Drawable* drawable : *drawables)
 		{
-			Drawable* drawable = drawables->at(i);
 			vector<DrawingInfo> drawingInfos = drawable->tick(keyState, totalFrame);
 			for (DrawingInfo drawingInfo : drawingInfos)
 			{
@@ -73,6 +72,9 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 					position.w = 2;
 					position.h = 2;
 					SDL_FillRect(windowSurface, &position, SDL_MapRGB(windowSurface->format, 255, 0, 0));
+
+					SDL_Rect hitRect = drawable->getHitRect();
+					SDL_FillRect(windowSurface, &hitRect, SDL_MapRGB(windowSurface->format, 0, 0, 255));
 				}
 			}
 		}
@@ -138,18 +140,21 @@ void Engine::start(int screenWidth, int screenHeight)
 	SDL_Quit();
 }
 
-void removeEnemy(Enemy* enemy, int index)
+vector<Enemy*>::iterator removeEnemy(vector<Enemy*>::iterator enemy)
 {
-	enemies.erase(enemies.begin() + index);
-
-	for (int i = drawables.size() - 1; i >= 0; --i)
+	for (auto drawable = drawables.begin(); drawable != drawables.end();)
 	{
-		Drawable* drawable = drawables[i];
-		if (drawable == enemy)
+		if (*drawable == *enemy)
 		{
-			drawables.erase(drawables.begin() + i);
+			drawable = drawables.erase(drawable);
+		}
+		else
+		{
+			++drawable;
 		}
 	}
+
+	return enemies.erase(enemy);
 }
 
 void Engine::attack(int x, int y)
@@ -158,18 +163,25 @@ void Engine::attack(int x, int y)
 	point.x = x;
 	point.y = y;
 
-	for (int i = enemies.size() - 1; i >= 0; --i)
+	for (vector<Enemy*>::iterator enemy = enemies.begin(); enemy != enemies.end();)
 	{
-		Enemy* enemy = enemies[i];
-		SDL_Rect hitRect = enemy->getHitRect();
+		SDL_Rect hitRect = (*enemy)->getHitRect();
 
 		if (SDL_PointInRect(&point, &hitRect))
 		{
-			enemy->attack(1);
-			if (enemy->life <= 0)
+			(*enemy)->attack(1);
+			if ((*enemy)->life <= 0)
 			{
-				removeEnemy(enemy, i);
+				enemy = removeEnemy(enemy);
 			}
+			else
+			{
+				++enemy;
+			}
+		}
+		else
+		{
+			++enemy;
 		}
 	}
 }

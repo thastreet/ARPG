@@ -37,11 +37,13 @@ vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame)
 
 SDL_Rect Enemy::getHitRect()
 {
+	const int hitHeight = 14;
+
 	SDL_Rect rect = SDL_Rect();
-	rect.x = this->x - animationDirection.offsetX;
-	rect.y = this->y - 15;
+	rect.x = x - animationDirection.offsetX;
+	rect.y = y + animationDirection.height - animationDirection.offsetY - hitHeight;
 	rect.w = animationDirection.width;
-	rect.h = 17;
+	rect.h = hitHeight;
 
 	return rect;
 }

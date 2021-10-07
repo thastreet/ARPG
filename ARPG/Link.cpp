@@ -176,3 +176,17 @@ vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame)
 
 	return drawingInfos;
 }
+
+SDL_Rect Link::getHitRect()
+{
+	const int horizontalSpace = 5;
+	const int hitHeight = 12;
+
+	SDL_Rect rect = SDL_Rect();
+	rect.x = x - animationDirection.offsetX + horizontalSpace;
+	rect.y = y + animationDirection.height - animationDirection.offsetY - hitHeight;
+	rect.w = animationDirection.width - 2 * horizontalSpace;
+	rect.h = hitHeight;
+
+	return rect;
+}
