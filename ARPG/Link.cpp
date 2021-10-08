@@ -1,5 +1,7 @@
 #include "Link.h"
 
+using namespace std;
+
 const bool betterSword = false;
 const int walkDistance = 2;
 const int walkingAnimationThreshold = 3;
@@ -34,7 +36,21 @@ vector<SDL_Surface*> Link::getSurfaces()
 	return surfaces;
 }
 
-vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame)
+bool intersectsAnyCollision(vector<SDL_Rect*> collisions, SDL_Rect* target)
+{
+	bool intersectAnyRect = false;
+	for (auto rect : collisions)
+	{
+		if (SDL_HasIntersection(rect, target))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, vector<SDL_Rect*> collisions)
 {
 	const bool shouldAnimateWalking = totalFrame % walkingAnimationThreshold == 0;
 
@@ -109,7 +125,14 @@ vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame)
 						incrementFrame();
 						frameIncremented = true;
 					}
-					x += walkDistance;
+
+					SDL_Rect hitRect = getHitRect();
+					hitRect.x += walkDistance;
+
+					if (!intersectsAnyCollision(collisions, &hitRect))
+					{
+						x += walkDistance;
+					}
 				}
 			}
 			if (keyState[SDL_SCANCODE_LEFT])
@@ -126,7 +149,14 @@ vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame)
 						incrementFrame();
 						frameIncremented = true;
 					}
-					x -= walkDistance;
+
+					SDL_Rect hitRect = getHitRect();
+					hitRect.x -= walkDistance;
+
+					if (!intersectsAnyCollision(collisions, &hitRect))
+					{
+						x -= walkDistance;
+					}
 				}
 			}
 			if (keyState[SDL_SCANCODE_UP])
@@ -143,7 +173,14 @@ vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame)
 						incrementFrame();
 						frameIncremented = true;
 					}
-					y -= walkDistance;
+
+					SDL_Rect hitRect = getHitRect();
+					hitRect.y -= walkDistance;
+
+					if (!intersectsAnyCollision(collisions, &hitRect))
+					{
+						y -= walkDistance;
+					}
 				}
 			}
 			if (keyState[SDL_SCANCODE_DOWN])
@@ -160,7 +197,14 @@ vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame)
 						incrementFrame();
 						frameIncremented = true;
 					}
-					y += walkDistance;
+
+					SDL_Rect hitRect = getHitRect();
+					++hitRect.y;
+
+					if (!intersectsAnyCollision(collisions, &hitRect))
+					{
+						y += walkDistance;
+					}
 				}
 			}
 		}

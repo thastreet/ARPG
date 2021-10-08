@@ -59,7 +59,14 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 
 		for (Drawable* drawable : *drawables)
 		{
-			vector<DrawingInfo> drawingInfos = drawable->tick(keyState, totalFrame);
+			vector<SDL_Rect*> collisions;
+			for (auto enemy : enemies)
+			{
+				SDL_Rect hitRect = enemy->getHitRect();
+				collisions.push_back(&hitRect);
+			}
+
+			vector<DrawingInfo> drawingInfos = drawable->tick(keyState, totalFrame, collisions);
 			for (DrawingInfo drawingInfo : drawingInfos)
 			{
 				SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);

@@ -55,7 +55,7 @@ class Drawable
 public:
 	virtual void init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader) = 0;
 	virtual vector<SDL_Surface*> getSurfaces() = 0;
-	virtual vector<DrawingInfo> tick(const Uint8* keyState, int totalFrame) = 0;
+	virtual vector<DrawingInfo> tick(const Uint8* keyState, int totalFrame, vector<SDL_Rect*> collisions) = 0;
 	virtual SDL_Rect getHitRect() = 0;
 
 protected:
