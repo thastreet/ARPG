@@ -1,1 +1,77 @@
-{"sprites":[{"id":"treeTopLeft","originX":48,"originY":104},{"id":"treeTopRight","originX":64,"originY":104},{"id":"treeBottomLeft","originX":48,"originY":120},{"id":"treeBottomRight","originX":64,"originY":120}],"map":[{"id":"treeTopLeft","x":320,"y":320},{"id":"treeTopRight","x":336,"y":320},{"id":"treeBottomLeft","x":320,"y":336},{"id":"treeBottomRight","x":336,"y":336}]}
+{
+    "sprites": [
+        {
+            "id": "treeTopLeft",
+            "originX": 48,
+            "originY": 104,
+            "size": 16
+        },
+        {
+            "id": "treeTopRight",
+            "originX": 64,
+            "originY": 104,
+            "size": 16
+        },
+        {
+            "id": "treeBottomLeft",
+            "originX": 48,
+            "originY": 120,
+            "size": 16
+        },
+        {
+            "id": "treeBottomRight",
+            "originX": 64,
+            "originY": 120,
+            "size": 16
+        },
+        {
+            "id": "grass",
+            "originX": 0,
+            "originY": 0,
+            "size": 8
+        },
+        {
+            "id": "water",
+            "originX": 24,
+            "originY": 0,
+            "size": 8
+        },
+        {
+            "id": "pot",
+            "originX": 328,
+            "originY": 80,
+            "size": 16
+        },
+        {
+            "id": "dirt",
+            "originX": 80,
+            "originY": 0,
+            "size": 16
+        }
+    ],
+    "layer1": {
+        "id": "dirt"
+    },
+    "layer2": [
+        {
+            "id": "treeTopLeft",
+            "x": 320,
+            "y": 320
+        },
+        {
+            "id": "treeTopRight",
+            "x": 336,
+            "y": 320
+        },
+        {
+            "id": "treeBottomLeft",
+            "x": 320,
+            "y": 336
+        },
+        {
+            "id": "treeBottomRight",
+            "x": 336,
+            "y": 336
+        }
+    ]
+}
