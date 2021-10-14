@@ -49,23 +49,28 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 		Uint32 skyblue = SDL_MapRGB(windowSurface->format, 65, 193, 193);
 		SDL_FillRect(windowSurface, nullptr, skyblue);
 
-		vector<DrawingInfo> drawingInfos = map->drawingInfos;
-		for (DrawingInfo drawingInfo : drawingInfos)
+		const vector<Tile> tiles = map->tiles;
+
+		for (auto tile = tiles.begin(); tile != tiles.end(); ++tile)
 		{
-			SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
+			SDL_Rect dstRect = tile->drawingInfo.dstRect;
+			SDL_BlitSurface(tile->drawingInfo.surface, &tile->drawingInfo.srcRect, windowSurface, &dstRect);
 		}
 
 		const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
+		vector<SDL_Rect> collisions;
+		for (auto tile = tiles.begin(); tile != tiles.end(); ++tile)
+		{
+			if (tile->collision)
+			{
+				SDL_Rect rect = tile->drawingInfo.dstRect;
+				collisions.push_back(rect);
+			}
+		}
+
 		for (Drawable* drawable : *drawables)
 		{
-			vector<SDL_Rect*> collisions;
-			for (auto enemy : enemies)
-			{
-				SDL_Rect hitRect = enemy->getHitRect();
-				collisions.push_back(&hitRect);
-			}
-
 			vector<DrawingInfo> drawingInfos = drawable->tick(keyState, totalFrame, collisions);
 			for (DrawingInfo drawingInfo : drawingInfos)
 			{

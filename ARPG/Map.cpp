@@ -48,7 +48,7 @@ void Map::init(string surfaceName, string fileName, SurfaceLoader* surfaceLoader
 {
 	surface = surfaceLoader->loadSurface(surfaceName, windowSurface);
 
-	drawingInfos.clear();
+	tiles.clear();
 
 	ifstream i(fileName);
 	json j;
@@ -66,7 +66,10 @@ void Map::init(string surfaceName, string fileName, SurfaceLoader* surfaceLoader
 		for (int j = 0; j < 160 / height; ++j)
 		{
 			DrawingInfo drawingInfo = createDrawingInfo(layer1Sprite, surface, i * width, j * height);
-			drawingInfos.push_back(drawingInfo);
+			Tile tile;
+			tile.drawingInfo = drawingInfo;
+			tile.collision = layer1Sprite["collision"];
+			tiles.push_back(tile);
 		}
 	}
 
@@ -74,6 +77,9 @@ void Map::init(string surfaceName, string fileName, SurfaceLoader* surfaceLoader
 	{
 		json layer2Sprite = findSprite(j, layer2["id"]);
 		DrawingInfo drawingInfo = createDrawingInfo(layer2Sprite, surface, layer2["x"], layer2["y"]);
-		drawingInfos.push_back(drawingInfo);
+		Tile tile;
+		tile.drawingInfo = drawingInfo;
+		tile.collision = layer2Sprite["collision"];
+		tiles.push_back(tile);
 	}
 }

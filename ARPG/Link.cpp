@@ -36,12 +36,12 @@ vector<SDL_Surface*> Link::getSurfaces()
 	return surfaces;
 }
 
-bool intersectsAnyCollision(vector<SDL_Rect*> collisions, SDL_Rect* target)
+bool intersectsAnyCollision(vector<SDL_Rect> collisions, SDL_Rect* target)
 {
 	bool intersectAnyRect = false;
 	for (auto rect : collisions)
 	{
-		if (SDL_HasIntersection(rect, target))
+		if (SDL_HasIntersection(&rect, target))
 		{
 			return true;
 		}
@@ -50,7 +50,7 @@ bool intersectsAnyCollision(vector<SDL_Rect*> collisions, SDL_Rect* target)
 	return false;
 }
 
-vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, vector<SDL_Rect*> collisions)
+vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, vector<SDL_Rect> collisions)
 {
 	const bool shouldAnimateWalking = totalFrame % walkingAnimationThreshold == 0;
 

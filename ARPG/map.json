@@ -4,49 +4,57 @@
             "id": "treeTopLeft",
             "originX": 48,
             "originY": 104,
-            "size": 16
+            "size": 16,
+            "collision": true
         },
         {
             "id": "treeTopRight",
             "originX": 64,
             "originY": 104,
-            "size": 16
+            "size": 16,
+            "collision": true
         },
         {
             "id": "treeBottomLeft",
             "originX": 48,
             "originY": 120,
-            "size": 16
+            "size": 16,
+            "collision": true
         },
         {
             "id": "treeBottomRight",
             "originX": 64,
             "originY": 120,
-            "size": 16
+            "size": 16,
+            "collision": true
         },
         {
             "id": "grass",
             "originX": 0,
             "originY": 0,
-            "size": 8
+            "size": 8,
+            "collision": false
         },
         {
             "id": "water",
             "originX": 24,
             "originY": 0,
-            "size": 8
+            "size": 8,
+            "collision": false
         },
         {
             "id": "pot",
             "originX": 328,
             "originY": 80,
-            "size": 16
+            "size": 16,
+            "collision": true
         },
         {
             "id": "dirt",
             "originX": 80,
             "originY": 0,
-            "size": 16
+            "size": 16,
+            "collision": false
         }
     ],
     "layer1": {
@@ -55,23 +63,23 @@
     "layer2": [
         {
             "id": "treeTopLeft",
-            "x": 320,
-            "y": 320
+            "x": 120,
+            "y": 120
         },
         {
             "id": "treeTopRight",
-            "x": 336,
-            "y": 320
+            "x": 136,
+            "y": 120
         },
         {
             "id": "treeBottomLeft",
-            "x": 320,
-            "y": 336
+            "x": 120,
+            "y": 136
         },
         {
             "id": "treeBottomRight",
-            "x": 336,
-            "y": 336
+            "x": 136,
+            "y": 136
         }
     ]
 }
