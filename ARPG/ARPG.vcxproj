@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="AnimationLoader.cpp" />
     <ClCompile Include="Character.cpp" />
-    <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Link.cpp" />
