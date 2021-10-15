@@ -1,7 +1,5 @@
 #include "Link.h"
 
-using namespace std;
-
 const bool betterSword = false;
 const int walkDistance = 2;
 const int walkingAnimationThreshold = 3;
@@ -26,9 +24,9 @@ void Link::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, Animat
 	y = animationDirection.offsetY;
 }
 
-vector<SDL_Surface*> Link::getSurfaces()
+std::vector<SDL_Surface*> Link::getSurfaces()
 {
-	vector<SDL_Surface*> surfaces;
+	std::vector<SDL_Surface*> surfaces;
 	surfaces.push_back(walkingAnimation.surface);
 	surfaces.push_back(stoppedAnimation.surface);
 	surfaces.push_back(attackingAnimation.surface);
@@ -36,7 +34,7 @@ vector<SDL_Surface*> Link::getSurfaces()
 	return surfaces;
 }
 
-bool intersectsAnyCollision(vector<SDL_Rect> collisions, SDL_Rect* target)
+bool intersectsAnyCollision(std::vector<SDL_Rect> collisions, SDL_Rect* target)
 {
 	bool intersectAnyRect = false;
 	for (auto rect : collisions)
@@ -50,7 +48,7 @@ bool intersectsAnyCollision(vector<SDL_Rect> collisions, SDL_Rect* target)
 	return false;
 }
 
-vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, vector<SDL_Rect> collisions)
+std::vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, std::vector<SDL_Rect> collisions)
 {
 	const bool shouldAnimateWalking = totalFrame % walkingAnimationThreshold == 0;
 
@@ -210,7 +208,7 @@ vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, vector<SD
 		}
 	}
 
-	vector<DrawingInfo> drawingInfos;
+	std::vector<DrawingInfo> drawingInfos;
 	drawingInfos.push_back(createDrawingInfo(animationDirection, animation));
 
 	if (attacking)

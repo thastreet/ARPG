@@ -1,6 +1,7 @@
-#include "Map.h"
 #include "json.hpp"
+#include "Map.h"
 #include <fstream>
+#include <string>
 
 using namespace nlohmann;
 
@@ -31,7 +32,7 @@ DrawingInfo createDrawingInfo(json sprite, SDL_Surface* surface, int x, int y)
 	return drawingInfo;
 }
 
-json findSprite(json j, string id)
+json findSprite(json j, std::string id)
 {
 	for (auto& sprite : j["sprites"])
 	{
@@ -44,13 +45,13 @@ json findSprite(json j, string id)
 	throw;
 }
 
-void Map::init(string surfaceName, string fileName, SurfaceLoader* surfaceLoader, SDL_Surface* windowSurface)
+void Map::init(std::string surfaceName, std::string fileName, SurfaceLoader* surfaceLoader, SDL_Surface* windowSurface)
 {
 	surface = surfaceLoader->loadSurface(surfaceName, windowSurface);
 
 	tiles.clear();
 
-	ifstream i(fileName);
+	std::ifstream i(fileName);
 	json j;
 	i >> j;
 

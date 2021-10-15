@@ -1,6 +1,9 @@
 #pragma once
+#include "DrawingInfo.h"
+#include "SurfaceLoader.h"
+#include <SDL.h>
+#include <string>
 #include <vector>
-#include "Drawing.h"
 
 struct Tile
 {
@@ -11,8 +14,8 @@ struct Tile
 class Map
 {
 public:
-	void init(string surfaceName, string fileName, SurfaceLoader* surfaceLoader, SDL_Surface* windowSurface);
+	void init(std::string surfaceName, std::string fileName, SurfaceLoader* surfaceLoader, SDL_Surface* windowSurface);
 
-	vector<Tile> tiles;
+	std::vector<Tile> tiles;
 	SDL_Surface* surface = nullptr;
 };

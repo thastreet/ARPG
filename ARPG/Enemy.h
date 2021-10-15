@@ -1,12 +1,12 @@
 #pragma once
-#include "Drawing.h"
+#include "Character.h"
 
-class Enemy : public Drawable
+class Enemy : public Character
 {
 public:
 	void init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader);
-	vector<SDL_Surface*> getSurfaces();
-	vector<DrawingInfo> tick(const Uint8* keyState, int totalFrame, vector<SDL_Rect> collisions);
+	std::vector<SDL_Surface*> getSurfaces();
+	std::vector<DrawingInfo> tick(const Uint8* keyState, int totalFrame, std::vector<SDL_Rect> collisions);
 	void attack(int value);
 	SDL_Rect getHitRect();
 

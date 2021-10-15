@@ -1,7 +1,5 @@
 #include "Enemy.h"
 
-using namespace std;
-
 const int animationThreshold = 20;
 Animation mainAnimation = Animation();
 
@@ -15,14 +13,14 @@ void Enemy::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, Anima
 	y = animationDirection.offsetY + 50;
 }
 
-vector<SDL_Surface*> Enemy::getSurfaces()
+std::vector<SDL_Surface*> Enemy::getSurfaces()
 {
-	vector<SDL_Surface*> surfaces;
+	std::vector<SDL_Surface*> surfaces;
 	surfaces.push_back(mainAnimation.surface);
 	return surfaces;
 }
 
-vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame, vector<SDL_Rect> collisions)
+std::vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame, std::vector<SDL_Rect> collisions)
 {
 	const bool shouldAnimate = totalFrame % animationThreshold == 0;
 	if (shouldAnimate)
@@ -30,7 +28,7 @@ vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame, vector<SD
 		incrementFrame();
 	}
 
-	vector<DrawingInfo> drawingInfos;
+	std::vector<DrawingInfo> drawingInfos;
 	drawingInfos.push_back(createDrawingInfo(animationDirection, &mainAnimation));
 	return drawingInfos;
 }

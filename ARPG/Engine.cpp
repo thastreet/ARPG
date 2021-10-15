@@ -1,15 +1,12 @@
 #include "Engine.h"
-#include "Drawing.h"
+#include "Enemy.h"
 #include "Link.h"
+#include "Map.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <string>
 #include <stdio.h>
 #include <vector>
-#include "Enemy.h"
-#include "Map.h"
-
-using namespace std;
 
 const int FPS = 60;
 const int frameDelay = 1000 / FPS;
@@ -22,10 +19,10 @@ int totalFrame;
 SurfaceLoader surfaceLoader = SurfaceLoader();
 AnimationLoader animationLoader = AnimationLoader();
 
-vector<Drawable*> drawables;
-vector<Enemy*> enemies;
+std::vector<Character*> characters;
+std::vector<Enemy*> enemies;
 
-void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface* windowSurface, vector<Drawable*>* drawables, Map* map) {
+void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface* windowSurface, std::vector<Character*>* characters, Map* map) {
 	bool quit = false;
 
 	SDL_Event event;
@@ -49,7 +46,7 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 		Uint32 skyblue = SDL_MapRGB(windowSurface->format, 65, 193, 193);
 		SDL_FillRect(windowSurface, nullptr, skyblue);
 
-		const vector<Tile> tiles = map->tiles;
+		const std::vector<Tile> tiles = map->tiles;
 
 		for (auto tile = tiles.begin(); tile != tiles.end(); ++tile)
 		{
@@ -59,7 +56,7 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 
 		const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
-		vector<SDL_Rect> collisions;
+		std::vector<SDL_Rect> collisions;
 		for (auto tile = tiles.begin(); tile != tiles.end(); ++tile)
 		{
 			if (tile->collision)
@@ -69,9 +66,9 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 			}
 		}
 
-		for (Drawable* drawable : *drawables)
+		for (Character* character : *characters)
 		{
-			vector<DrawingInfo> drawingInfos = drawable->tick(keyState, totalFrame, collisions);
+			std::vector<DrawingInfo> drawingInfos = character->tick(keyState, totalFrame, collisions);
 			for (DrawingInfo drawingInfo : drawingInfos)
 			{
 				SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
@@ -85,7 +82,7 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 					position.h = 2;
 					SDL_FillRect(windowSurface, &position, SDL_MapRGB(windowSurface->format, 255, 0, 0));
 
-					SDL_Rect hitRect = drawable->getHitRect();
+					SDL_Rect hitRect = character->getHitRect();
 					SDL_FillRect(windowSurface, &hitRect, SDL_MapRGB(windowSurface->format, 0, 0, 255));
 				}
 			}
@@ -118,23 +115,23 @@ void Engine::start(int screenWidth, int screenHeight)
 		Link link = Link();
 		link.attackAware = this;
 
-		drawables.clear();
-		drawables.push_back(&enemy);
-		drawables.push_back(&link);
+		characters.clear();
+		characters.push_back(&enemy);
+		characters.push_back(&link);
 
-		for (Drawable* drawable : drawables)
+		for (Character* character : characters)
 		{
-			drawable->init(windowSurface, &surfaceLoader, &animationLoader);
+			character->init(windowSurface, &surfaceLoader, &animationLoader);
 		}
 
 		Map map;
 		map.init("light_world.tiles.png", "map.json", &surfaceLoader, windowSurface);
 
-		mainLoop(screenWidth, screenHeight, window, windowSurface, &drawables, &map);
+		mainLoop(screenWidth, screenHeight, window, windowSurface, &characters, &map);
 
-		for (Drawable* drawable : drawables)
+		for (Character* character : characters)
 		{
-			for (SDL_Surface* surface : drawable->getSurfaces())
+			for (SDL_Surface* surface : character->getSurfaces())
 			{
 				SDL_FreeSurface(surface);
 				surface = nullptr;
@@ -152,17 +149,17 @@ void Engine::start(int screenWidth, int screenHeight)
 	SDL_Quit();
 }
 
-vector<Enemy*>::iterator removeEnemy(vector<Enemy*>::iterator enemy)
+std::vector<Enemy*>::iterator removeEnemy(std::vector<Enemy*>::iterator enemy)
 {
-	for (auto drawable = drawables.begin(); drawable != drawables.end();)
+	for (auto character = characters.begin(); character != characters.end();)
 	{
-		if (*drawable == *enemy)
+		if (*character == *enemy)
 		{
-			drawable = drawables.erase(drawable);
+			character = characters.erase(character);
 		}
 		else
 		{
-			++drawable;
+			++character;
 		}
 	}
 
@@ -175,7 +172,7 @@ void Engine::attack(int x, int y)
 	point.x = x;
 	point.y = y;
 
-	for (vector<Enemy*>::iterator enemy = enemies.begin(); enemy != enemies.end();)
+	for (std::vector<Enemy*>::iterator enemy = enemies.begin(); enemy != enemies.end();)
 	{
 		SDL_Rect hitRect = (*enemy)->getHitRect();
 
