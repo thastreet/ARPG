@@ -88,7 +88,7 @@ bool Link::onRightPressed(const Uint8* keyState, std::vector<SDL_Rect> collision
 
 	if (shouldAnimateWalking)
 	{
-		if (!frameIncremented)
+		if (!frameAlreadyIncremented)
 		{
 			incrementFrame();
 			frameIncremented = true;
@@ -117,7 +117,7 @@ bool Link::onUpPressed(const Uint8* keyState, std::vector<SDL_Rect> collisions, 
 
 	if (shouldAnimateWalking)
 	{
-		if (!frameIncremented)
+		if (!frameAlreadyIncremented)
 		{
 			incrementFrame();
 			frameIncremented = true;
@@ -146,7 +146,7 @@ bool Link::onDownPressed(const Uint8* keyState, std::vector<SDL_Rect> collisions
 
 	if (shouldAnimateWalking)
 	{
-		if (!frameIncremented)
+		if (!frameAlreadyIncremented)
 		{
 			incrementFrame();
 			frameIncremented = true;
