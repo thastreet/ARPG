@@ -48,164 +48,215 @@ bool intersectsAnyCollision(std::vector<SDL_Rect> collisions, SDL_Rect* target)
 	return false;
 }
 
-std::vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, std::vector<SDL_Rect> collisions)
+bool Link::onLeftPressed(const Uint8* keyState, std::vector<SDL_Rect> collisions, bool frameAlreadyIncremented, bool shouldAnimateWalking)
 {
-	const bool shouldAnimateWalking = totalFrame % walkingAnimationThreshold == 0;
+	bool frameIncremented = false;
 
+	if (!keyState[SDL_SCANCODE_DOWN] && !keyState[SDL_SCANCODE_UP] || direction == Direction::RIGHT)
+	{
+		setDirection(Direction::LEFT);
+	}
+
+	if (shouldAnimateWalking)
+	{
+		if (!frameAlreadyIncremented)
+		{
+			incrementFrame();
+			frameIncremented = true;
+		}
+
+		SDL_Rect hitRect = getHitRect();
+		hitRect.x -= walkDistance;
+
+		if (!intersectsAnyCollision(collisions, &hitRect))
+		{
+			x -= walkDistance;
+		}
+	}
+
+	return frameIncremented;
+}
+
+bool Link::onRightPressed(const Uint8* keyState, std::vector<SDL_Rect> collisions, bool frameAlreadyIncremented, bool shouldAnimateWalking)
+{
+	bool frameIncremented = false;
+
+	if (!keyState[SDL_SCANCODE_DOWN] && !keyState[SDL_SCANCODE_UP] || direction == Direction::LEFT)
+	{
+		setDirection(Direction::RIGHT);
+	}
+
+	if (shouldAnimateWalking)
+	{
+		if (!frameIncremented)
+		{
+			incrementFrame();
+			frameIncremented = true;
+		}
+
+		SDL_Rect hitRect = getHitRect();
+		hitRect.x += walkDistance;
+
+		if (!intersectsAnyCollision(collisions, &hitRect))
+		{
+			x += walkDistance;
+		}
+	}
+
+	return frameIncremented;
+}
+
+bool Link::onUpPressed(const Uint8* keyState, std::vector<SDL_Rect> collisions, bool frameAlreadyIncremented, bool shouldAnimateWalking)
+{
+	bool frameIncremented = false;
+
+	if (!keyState[SDL_SCANCODE_LEFT] && !keyState[SDL_SCANCODE_RIGHT] || direction == Direction::DOWN)
+	{
+		setDirection(Direction::UP);
+	}
+
+	if (shouldAnimateWalking)
+	{
+		if (!frameIncremented)
+		{
+			incrementFrame();
+			frameIncremented = true;
+		}
+
+		SDL_Rect hitRect = getHitRect();
+		hitRect.y -= walkDistance;
+
+		if (!intersectsAnyCollision(collisions, &hitRect))
+		{
+			y -= walkDistance;
+		}
+	}
+
+	return frameIncremented;
+}
+
+bool Link::onDownPressed(const Uint8* keyState, std::vector<SDL_Rect> collisions, bool frameAlreadyIncremented, bool shouldAnimateWalking)
+{
+	bool frameIncremented = false;
+
+	if (!keyState[SDL_SCANCODE_LEFT] && !keyState[SDL_SCANCODE_RIGHT] || direction == Direction::UP)
+	{
+		setDirection(Direction::DOWN);
+	}
+
+	if (shouldAnimateWalking)
+	{
+		if (!frameIncremented)
+		{
+			incrementFrame();
+			frameIncremented = true;
+		}
+
+		SDL_Rect hitRect = getHitRect();
+		++hitRect.y;
+
+		if (!intersectsAnyCollision(collisions, &hitRect))
+		{
+			y += walkDistance;
+		}
+	}
+
+	return frameIncremented;
+}
+
+void Link::continueAttacking()
+{
+	incrementFrame();
+	if (frame == animationDirection.size / 2)
+	{
+		int swordX = 0;
+		int swordY = 0;
+
+		switch (direction)
+		{
+		case Direction::DOWN:
+			swordX = animationDirection.width / 2;
+			swordY = animationDirection.height + 6;
+			break;
+		case Direction::UP:
+			swordX = animationDirection.width / 2;
+			swordY = 0;
+			break;
+		case Direction::LEFT:
+			swordX = -6;
+			swordY = animationDirection.height - 10;
+			break;
+		case Direction::RIGHT:
+			swordX = animationDirection.width + 6;
+			swordY = animationDirection.height - 10;
+			break;
+		}
+
+		attackAware->attack(x - animationDirection.offsetX + swordX, y - animationDirection.offsetY + swordY);
+	}
+}
+
+void Link::handleKeyState(const Uint8* keyState, bool shouldAnimateWalking, std::vector<SDL_Rect> collisions)
+{
+	bool frameIncremented = false;
+
+	if (keyState[SDL_SCANCODE_A])
+	{
+		attacking = true;
+		setAnimation(&attackingAnimation, true);
+	}
+	else if (keyState[SDL_SCANCODE_LEFT] || keyState[SDL_SCANCODE_RIGHT] || keyState[SDL_SCANCODE_DOWN] || keyState[SDL_SCANCODE_UP])
+	{
+		setAnimation(&walkingAnimation, false);
+	}
+	else
+	{
+		setAnimation(&stoppedAnimation, true);
+	}
+
+	if (!attacking)
+	{
+		if (keyState[SDL_SCANCODE_RIGHT])
+		{
+			frameIncremented = onRightPressed(keyState, collisions, frameIncremented, shouldAnimateWalking);
+		}
+		if (keyState[SDL_SCANCODE_LEFT])
+		{
+			frameIncremented = onLeftPressed(keyState, collisions, frameIncremented, shouldAnimateWalking);
+		}
+		if (keyState[SDL_SCANCODE_UP])
+		{
+			frameIncremented = onUpPressed(keyState, collisions, frameIncremented, shouldAnimateWalking);
+		}
+		if (keyState[SDL_SCANCODE_DOWN])
+		{
+			frameIncremented = onDownPressed(keyState, collisions, frameIncremented, shouldAnimateWalking);
+		}
+	}
+}
+
+void Link::finishAttackingIfNecessary()
+{
 	if (attacking && frame == animationDirection.size - 1)
 	{
 		attacking = false;
 		frame = 0;
 	}
+}
+
+std::vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, std::vector<SDL_Rect> collisions)
+{
+	const bool shouldAnimateWalking = totalFrame % walkingAnimationThreshold == 0;
+
+	finishAttackingIfNecessary();
 
 	if (attacking)
 	{
-		incrementFrame();
-		if (frame == animationDirection.size / 2)
-		{
-			int swordX = 0;
-			int swordY = 0;
-
-			switch (direction)
-			{
-			case Direction::DOWN:
-				swordX = animationDirection.width / 2;
-				swordY = animationDirection.height + 6;
-				break;
-			case Direction::UP:
-				swordX = animationDirection.width / 2;
-				swordY = 0;
-				break;
-			case Direction::LEFT:
-				swordX = -6;
-				swordY = animationDirection.height - 10;
-				break;
-			case Direction::RIGHT:
-				swordX = animationDirection.width + 6;
-				swordY = animationDirection.height - 10;
-				break;
-			}
-
-			attackAware->attack(x - animationDirection.offsetX + swordX, y - animationDirection.offsetY + swordY);
-		}
+		continueAttacking();
 	}
 	else
 	{
-		bool frameIncremented = false;
-
-		if (keyState[SDL_SCANCODE_A])
-		{
-			attacking = true;
-			setAnimation(&attackingAnimation, true);
-		}
-		else if (keyState[SDL_SCANCODE_LEFT] || keyState[SDL_SCANCODE_RIGHT] || keyState[SDL_SCANCODE_DOWN] || keyState[SDL_SCANCODE_UP])
-		{
-			setAnimation(&walkingAnimation, false);
-		}
-		else
-		{
-			setAnimation(&stoppedAnimation, true);
-		}
-
-		if (!attacking)
-		{
-			if (keyState[SDL_SCANCODE_RIGHT])
-			{
-				if (!keyState[SDL_SCANCODE_DOWN] && !keyState[SDL_SCANCODE_UP] || direction == Direction::LEFT)
-				{
-					setDirection(Direction::RIGHT);
-				}
-
-				if (shouldAnimateWalking)
-				{
-					if (!frameIncremented)
-					{
-						incrementFrame();
-						frameIncremented = true;
-					}
-
-					SDL_Rect hitRect = getHitRect();
-					hitRect.x += walkDistance;
-
-					if (!intersectsAnyCollision(collisions, &hitRect))
-					{
-						x += walkDistance;
-					}
-				}
-			}
-			if (keyState[SDL_SCANCODE_LEFT])
-			{
-				if (!keyState[SDL_SCANCODE_DOWN] && !keyState[SDL_SCANCODE_UP] || direction == Direction::RIGHT)
-				{
-					setDirection(Direction::LEFT);
-				}
-
-				if (shouldAnimateWalking)
-				{
-					if (!frameIncremented)
-					{
-						incrementFrame();
-						frameIncremented = true;
-					}
-
-					SDL_Rect hitRect = getHitRect();
-					hitRect.x -= walkDistance;
-
-					if (!intersectsAnyCollision(collisions, &hitRect))
-					{
-						x -= walkDistance;
-					}
-				}
-			}
-			if (keyState[SDL_SCANCODE_UP])
-			{
-				if (!keyState[SDL_SCANCODE_LEFT] && !keyState[SDL_SCANCODE_RIGHT] || direction == Direction::DOWN)
-				{
-					setDirection(Direction::UP);
-				}
-
-				if (shouldAnimateWalking)
-				{
-					if (!frameIncremented)
-					{
-						incrementFrame();
-						frameIncremented = true;
-					}
-
-					SDL_Rect hitRect = getHitRect();
-					hitRect.y -= walkDistance;
-
-					if (!intersectsAnyCollision(collisions, &hitRect))
-					{
-						y -= walkDistance;
-					}
-				}
-			}
-			if (keyState[SDL_SCANCODE_DOWN])
-			{
-				if (!keyState[SDL_SCANCODE_LEFT] && !keyState[SDL_SCANCODE_RIGHT] || direction == Direction::UP)
-				{
-					setDirection(Direction::DOWN);
-				}
-
-				if (shouldAnimateWalking)
-				{
-					if (!frameIncremented)
-					{
-						incrementFrame();
-						frameIncremented = true;
-					}
-
-					SDL_Rect hitRect = getHitRect();
-					++hitRect.y;
-
-					if (!intersectsAnyCollision(collisions, &hitRect))
-					{
-						y += walkDistance;
-					}
-				}
-			}
-		}
+		handleKeyState(keyState, shouldAnimateWalking, collisions);
 	}
 
 	std::vector<DrawingInfo> drawingInfos;
