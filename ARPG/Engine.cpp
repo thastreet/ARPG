@@ -22,6 +22,31 @@ AnimationLoader animationLoader = AnimationLoader();
 std::vector<Character*> characters;
 std::vector<Enemy*> enemies;
 
+void drawCharacters(SDL_Surface* windowSurface, const Uint8* keyState, std::vector<SDL_Rect>* collisions, std::vector<Character*>* characters)
+{
+	for (Character* character : *characters)
+	{
+		std::vector<DrawingInfo> drawingInfos = character->tick(keyState, totalFrame, *collisions);
+		for (DrawingInfo drawingInfo : drawingInfos)
+		{
+			SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
+
+			if (debug)
+			{
+				SDL_Rect position = SDL_Rect();
+				position.x = drawingInfo.dstRect.x;
+				position.y = drawingInfo.dstRect.y;
+				position.w = 2;
+				position.h = 2;
+				SDL_FillRect(windowSurface, &position, SDL_MapRGB(windowSurface->format, 255, 0, 0));
+
+				SDL_Rect hitRect = character->getHitRect();
+				SDL_FillRect(windowSurface, &hitRect, SDL_MapRGB(windowSurface->format, 0, 0, 255));
+			}
+		}
+	}
+}
+
 void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface* windowSurface, std::vector<Character*>* characters, Map* map) {
 	bool quit = false;
 
@@ -66,27 +91,7 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 			}
 		}
 
-		for (Character* character : *characters)
-		{
-			std::vector<DrawingInfo> drawingInfos = character->tick(keyState, totalFrame, collisions);
-			for (DrawingInfo drawingInfo : drawingInfos)
-			{
-				SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
-
-				if (debug)
-				{
-					SDL_Rect position = SDL_Rect();
-					position.x = drawingInfo.dstRect.x;
-					position.y = drawingInfo.dstRect.y;
-					position.w = 2;
-					position.h = 2;
-					SDL_FillRect(windowSurface, &position, SDL_MapRGB(windowSurface->format, 255, 0, 0));
-
-					SDL_Rect hitRect = character->getHitRect();
-					SDL_FillRect(windowSurface, &hitRect, SDL_MapRGB(windowSurface->format, 0, 0, 255));
-				}
-			}
-		}
+		drawCharacters(windowSurface, keyState, &collisions, characters);
 
 		SDL_UpdateWindowSurface(window);
 
@@ -97,6 +102,21 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 		}
 		++totalFrame;
 	}
+}
+
+void freeSurfaces(std::vector<Character*>* characters, Map* map)
+{
+	for (Character* character : *characters)
+	{
+		for (SDL_Surface* surface : character->getSurfaces())
+		{
+			SDL_FreeSurface(surface);
+			surface = nullptr;
+		}
+	}
+
+
+	SDL_FreeSurface(map->surface);
 }
 
 void Engine::start(int screenWidth, int screenHeight)
@@ -129,17 +149,7 @@ void Engine::start(int screenWidth, int screenHeight)
 
 		mainLoop(screenWidth, screenHeight, window, windowSurface, &characters, &map);
 
-		for (Character* character : characters)
-		{
-			for (SDL_Surface* surface : character->getSurfaces())
-			{
-				SDL_FreeSurface(surface);
-				surface = nullptr;
-			}
-		}
-
-
-		SDL_FreeSurface(map.surface);
+		freeSurfaces(&characters, &map);
 	}
 
 	SDL_DestroyWindow(window);
