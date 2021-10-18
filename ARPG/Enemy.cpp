@@ -20,7 +20,7 @@ std::vector<SDL_Surface*> Enemy::getSurfaces()
 	return surfaces;
 }
 
-std::vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame, std::vector<SDL_Rect> collisions)
+std::vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame, std::vector<SDL_Rect> collisions, int screenWidth, int screenHeight)
 {
 	const bool shouldAnimate = totalFrame % animationThreshold == 0;
 	if (shouldAnimate)

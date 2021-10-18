@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Enemy.h"
+#include "Hud.h"
 #include "Link.h"
 #include "Map.h"
 #include <SDL.h>
@@ -22,20 +23,35 @@ AnimationLoader animationLoader = AnimationLoader();
 std::vector<Character*> characters;
 std::vector<Enemy*> enemies;
 
-void drawCharacters(SDL_Surface* windowSurface, const Uint8* keyState, std::vector<SDL_Rect>* collisions, std::vector<Character*>* characters)
+void draw(DrawingInfo* drawingInfo, SDL_Surface* windowSurface)
+{
+	SDL_Rect* src = &drawingInfo->srcRect;
+	SDL_Rect* dst = &drawingInfo->dstRect;
+	SDL_BlitSurface(drawingInfo->surface, src, windowSurface, dst);
+}
+
+void draw(std::vector<DrawingInfo> drawingInfos, SDL_Surface* windowSurface)
+{
+	for (auto drawingInfo = drawingInfos.begin(); drawingInfo != drawingInfos.end(); ++drawingInfo)
+	{
+		draw(&(*drawingInfo), windowSurface);
+	}
+}
+
+void drawCharacters(SDL_Surface* windowSurface, const Uint8* keyState, std::vector<SDL_Rect>* collisions, std::vector<Character*>* characters, int screenWidth, int screenHeight)
 {
 	for (Character* character : *characters)
 	{
-		std::vector<DrawingInfo> drawingInfos = character->tick(keyState, totalFrame, *collisions);
-		for (DrawingInfo drawingInfo : drawingInfos)
+		std::vector<DrawingInfo> drawingInfos = character->tick(keyState, totalFrame, *collisions, screenWidth, screenHeight);
+		for (auto drawingInfo = drawingInfos.begin(); drawingInfo != drawingInfos.end(); ++drawingInfo)
 		{
-			SDL_BlitSurface(drawingInfo.surface, &drawingInfo.srcRect, windowSurface, &drawingInfo.dstRect);
+			draw(&(*drawingInfo), windowSurface);
 
 			if (debug)
 			{
 				SDL_Rect position = SDL_Rect();
-				position.x = drawingInfo.dstRect.x;
-				position.y = drawingInfo.dstRect.y;
+				position.x = drawingInfo->dstRect.x;
+				position.y = drawingInfo->dstRect.y;
 				position.w = 2;
 				position.h = 2;
 				SDL_FillRect(windowSurface, &position, SDL_MapRGB(windowSurface->format, 255, 0, 0));
@@ -47,7 +63,7 @@ void drawCharacters(SDL_Surface* windowSurface, const Uint8* keyState, std::vect
 	}
 }
 
-void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface* windowSurface, std::vector<Character*>* characters, Map* map) {
+void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface* windowSurface, std::vector<Character*>* characters, Map* map, Hud* hud) {
 	bool quit = false;
 
 	SDL_Event event;
@@ -75,8 +91,8 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 
 		for (auto tile = tiles.begin(); tile != tiles.end(); ++tile)
 		{
-			SDL_Rect dstRect = tile->drawingInfo.dstRect;
-			SDL_BlitSurface(tile->drawingInfo.surface, &tile->drawingInfo.srcRect, windowSurface, &dstRect);
+			DrawingInfo drawingInfo = tile->drawingInfo;
+			draw(&drawingInfo, windowSurface);
 		}
 
 		const Uint8* keyState = SDL_GetKeyboardState(nullptr);
@@ -91,7 +107,9 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 			}
 		}
 
-		drawCharacters(windowSurface, keyState, &collisions, characters);
+		drawCharacters(windowSurface, keyState, &collisions, characters, screenWidth, screenHeight);
+
+		draw(hud->tick(keyState, totalFrame, collisions, screenWidth, screenHeight), windowSurface);
 
 		SDL_UpdateWindowSurface(window);
 
@@ -145,9 +163,12 @@ void Engine::start(int screenWidth, int screenHeight)
 		}
 
 		Map map;
-		map.init("light_world.tiles.png", "map.json", &surfaceLoader, windowSurface);
+		map.init("light_world.tiles.png", "map.json", &surfaceLoader, windowSurface, screenWidth, screenHeight);
 
-		mainLoop(screenWidth, screenHeight, window, windowSurface, &characters, &map);
+		Hud hud;
+		hud.init(windowSurface, &surfaceLoader, &animationLoader);
+
+		mainLoop(screenWidth, screenHeight, window, windowSurface, &characters, &map, &hud);
 
 		freeSurfaces(&characters, &map);
 	}

@@ -11,7 +11,7 @@ class Link : public Character
 public:
 	void init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader);
 	std::vector<SDL_Surface*> getSurfaces();
-	std::vector<DrawingInfo> tick(const Uint8* keyState, int totalFrame, std::vector<SDL_Rect> collisions);
+	std::vector<DrawingInfo> tick(const Uint8* keyState, int totalFrame, std::vector<SDL_Rect> collisions, int screenWidth, int screenHeight);
 	SDL_Rect getHitRect();
 
 	AttackAware* attackAware = nullptr;

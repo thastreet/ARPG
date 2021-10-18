@@ -23,6 +23,7 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Hud.cpp" />
     <ClCompile Include="Link.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -39,6 +40,7 @@
     <ClInclude Include="DrawingInfo.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="Hud.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="Link.h" />
     <ClInclude Include="Map.h" />

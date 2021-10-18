@@ -244,7 +244,7 @@ void Link::finishAttackingIfNecessary()
 	}
 }
 
-std::vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, std::vector<SDL_Rect> collisions)
+std::vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, std::vector<SDL_Rect> collisions, int screenWidth, int screenHeight)
 {
 	const bool shouldAnimateWalking = totalFrame % walkingAnimationThreshold == 0;
 

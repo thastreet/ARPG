@@ -45,7 +45,7 @@ json findSprite(json j, std::string id)
 	throw;
 }
 
-void Map::init(std::string surfaceName, std::string fileName, SurfaceLoader* surfaceLoader, SDL_Surface* windowSurface)
+void Map::init(std::string surfaceName, std::string fileName, SurfaceLoader* surfaceLoader, SDL_Surface* windowSurface, int screenWidth, int screenHeight)
 {
 	surface = surfaceLoader->loadSurface(surfaceName, windowSurface);
 
@@ -62,9 +62,9 @@ void Map::init(std::string surfaceName, std::string fileName, SurfaceLoader* sur
 	int height;
 	width = height = layer1Sprite["size"];
 
-	for (int i = 0; i < 160 / width; ++i)
+	for (int i = 0; i < screenWidth / width; ++i)
 	{
-		for (int j = 0; j < 160 / height; ++j)
+		for (int j = 0; j < screenHeight / height; ++j)
 		{
 			DrawingInfo drawingInfo = createDrawingInfo(layer1Sprite, surface, i * width, j * height);
 			Tile tile;
