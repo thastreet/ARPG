@@ -12,10 +12,12 @@
 const int FPS = 60;
 const int frameDelay = 1000 / FPS;
 const bool debug = false;
+const int linkDamageThreshold = 60;
 
 Uint32 frameStart;
 int frameTime;
 int totalFrame;
+int linkLastDamageFrame;
 
 SurfaceLoader surfaceLoader = SurfaceLoader();
 AnimationLoader animationLoader = AnimationLoader();
@@ -38,11 +40,11 @@ void draw(std::vector<DrawingInfo> drawingInfos, SDL_Surface* windowSurface)
 	}
 }
 
-void drawCharacters(SDL_Surface* windowSurface, const Uint8* keyState, std::vector<SDL_Rect>* collisions, std::vector<Character*>* characters, int screenWidth, int screenHeight)
+void drawCharacters(SDL_Surface* windowSurface, const Uint8* keyState, std::vector<SDL_Rect>* collisions, std::vector<Character*>* characters)
 {
 	for (Character* character : *characters)
 	{
-		std::vector<DrawingInfo> drawingInfos = character->tick(keyState, totalFrame, *collisions, screenWidth, screenHeight);
+		std::vector<DrawingInfo> drawingInfos = character->tick(keyState, totalFrame, *collisions);
 		for (auto drawingInfo = drawingInfos.begin(); drawingInfo != drawingInfos.end(); ++drawingInfo)
 		{
 			draw(&(*drawingInfo), windowSurface);
@@ -63,7 +65,32 @@ void drawCharacters(SDL_Surface* windowSurface, const Uint8* keyState, std::vect
 	}
 }
 
-void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface* windowSurface, std::vector<Character*>* characters, Map* map, Hud* hud) {
+void checkForLinkDamage(Link* link, Hud* hud)
+{
+	std::vector<SDL_Rect> enemiesCollisions;
+	for (auto enemy = enemies.begin(); enemy != enemies.end(); ++enemy)
+	{
+		SDL_Rect hitRect = (*enemy)->getHitRect();
+		enemiesCollisions.push_back(hitRect);
+	}
+
+	if (link->intersectsAnyCollision(enemiesCollisions))
+	{
+		if (linkLastDamageFrame % linkDamageThreshold == 0 && link->life >= 0)
+		{
+			--link->life;
+			hud->update(link->life);
+		}
+
+		++linkLastDamageFrame;
+	}
+	else
+	{
+		linkLastDamageFrame = 0;
+	}
+}
+
+void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface* windowSurface, std::vector<Character*>* characters, Map* map, Hud* hud, Link* link) {
 	bool quit = false;
 
 	SDL_Event event;
@@ -107,9 +134,9 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 			}
 		}
 
-		drawCharacters(windowSurface, keyState, &collisions, characters, screenWidth, screenHeight);
+		drawCharacters(windowSurface, keyState, &collisions, characters);
 
-		draw(hud->tick(keyState, totalFrame, collisions, screenWidth, screenHeight), windowSurface);
+		draw(hud->tick(keyState, totalFrame, collisions), windowSurface);
 
 		SDL_UpdateWindowSurface(window);
 
@@ -119,6 +146,8 @@ void mainLoop(int screenWidth, int screenHeight, SDL_Window* window, SDL_Surface
 			SDL_Delay(frameDelay - frameTime);
 		}
 		++totalFrame;
+
+		checkForLinkDamage(link, hud);
 	}
 }
 
@@ -159,16 +188,17 @@ void Engine::start(int screenWidth, int screenHeight)
 
 		for (Character* character : characters)
 		{
-			character->init(windowSurface, &surfaceLoader, &animationLoader);
+			character->init(windowSurface, &surfaceLoader, &animationLoader, screenWidth, screenHeight);
 		}
 
 		Map map;
 		map.init("light_world.tiles.png", "map.json", &surfaceLoader, windowSurface, screenWidth, screenHeight);
 
 		Hud hud;
-		hud.init(windowSurface, &surfaceLoader, &animationLoader);
+		hud.init(windowSurface, &surfaceLoader, &animationLoader, screenWidth, screenHeight);
+		hud.update(link.life);
 
-		mainLoop(screenWidth, screenHeight, window, windowSurface, &characters, &map, &hud);
+		mainLoop(screenWidth, screenHeight, window, windowSurface, &characters, &map, &hud, &link);
 
 		freeSurfaces(&characters, &map);
 	}

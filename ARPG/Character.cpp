@@ -63,3 +63,23 @@ void Character::setDirection(Direction newDirection)
 	direction = newDirection;
 	animationDirection = animation->directions[getDirectionIndex()];
 }
+
+bool Character::intersectsAnyCollision(std::vector<SDL_Rect> collisions)
+{
+	SDL_Rect hitRect = getHitRect();
+	return intersectsAnyCollision(collisions, &hitRect);
+}
+
+bool Character::intersectsAnyCollision(std::vector<SDL_Rect> collisions, SDL_Rect* target)
+{
+	bool intersectAnyRect = false;
+	for (auto rect : collisions)
+	{
+		if (SDL_HasIntersection(&rect, target))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}

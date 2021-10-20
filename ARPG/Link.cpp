@@ -11,7 +11,7 @@ Animation stoppedAnimation = Animation();
 Animation attackingAnimation = Animation();
 Animation swordAnimation = Animation();
 
-void Link::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader)
+void Link::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader, int screenWidth, int screenHeight)
 {
 	animationLoader->loadAnimation(&walkingAnimation, "tunic1.json", "walking", surfaceLoader->loadSurface("walking.tunic.png", windowSurface));
 	animationLoader->loadAnimation(&stoppedAnimation, "tunic1.json", "stopped", surfaceLoader->loadSurface("stopped.tunic.png", windowSurface));
@@ -32,20 +32,6 @@ std::vector<SDL_Surface*> Link::getSurfaces()
 	surfaces.push_back(attackingAnimation.surface);
 	surfaces.push_back(swordAnimation.surface);
 	return surfaces;
-}
-
-bool intersectsAnyCollision(std::vector<SDL_Rect> collisions, SDL_Rect* target)
-{
-	bool intersectAnyRect = false;
-	for (auto rect : collisions)
-	{
-		if (SDL_HasIntersection(&rect, target))
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 bool Link::onLeftPressed(const Uint8* keyState, std::vector<SDL_Rect> collisions, bool frameAlreadyIncremented, bool shouldAnimateWalking)
@@ -244,7 +230,7 @@ void Link::finishAttackingIfNecessary()
 	}
 }
 
-std::vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, std::vector<SDL_Rect> collisions, int screenWidth, int screenHeight)
+std::vector<DrawingInfo> Link::tick(const Uint8 * keyState, int totalFrame, std::vector<SDL_Rect> collisions)
 {
 	const bool shouldAnimateWalking = totalFrame % walkingAnimationThreshold == 0;
 

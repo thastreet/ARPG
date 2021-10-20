@@ -3,7 +3,7 @@
 const int animationThreshold = 20;
 Animation mainAnimation = Animation();
 
-void Enemy::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader)
+void Enemy::init(SDL_Surface* windowSurface, SurfaceLoader* surfaceLoader, AnimationLoader* animationLoader, int screenWidth, int screenHeight)
 {
 	animationLoader->loadAnimation(&mainAnimation, "tentacle.json", "walking", surfaceLoader->loadSurface("tentacle.png", windowSurface));
 
@@ -20,7 +20,7 @@ std::vector<SDL_Surface*> Enemy::getSurfaces()
 	return surfaces;
 }
 
-std::vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame, std::vector<SDL_Rect> collisions, int screenWidth, int screenHeight)
+std::vector<DrawingInfo> Enemy::tick(const Uint8* keyState, int totalFrame, std::vector<SDL_Rect> collisions)
 {
 	const bool shouldAnimate = totalFrame % animationThreshold == 0;
 	if (shouldAnimate)
