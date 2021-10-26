@@ -15,7 +15,7 @@ public:
 	SDL_Rect getHitRect();
 
 	AttackAware* attackAware = nullptr;
-	int life = 10;
+	int life = 20;
 
 private:
 	void finishAttackingIfNecessary();
